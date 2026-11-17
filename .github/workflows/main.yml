@@ -8,119 +8,119 @@ jobs:
     steps:
       - name: Ownership Verification (Encoded)
         run: |
-          $encodedNotice = "Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQogQ29weXJpZ2h0IMKpIDIwMjUgVG9vbGJveExhcC54eXogfCBodHRwczovL3d3dy50b29sYm94bGFwLnh5ei8KIEFsbCByaWdodHMgcmVzZXJ2ZWQuIERvIG5vdCByZW1vdmUgb3IgbW9kaWZ5IGNvcHlyaWdodCB0ZXh0LgogWW91VHViZTogaHR0cHM6Ly93d3cueW91dHViZS5jb20vY2hhbm5lbC9VQ0RUNGZzOUp3cm5RSVhQclhYOHlIZVEKIEZhY2Vib29rOiBodHRwczovL3d3dy5mYWNlYm9vay5jb20vcHJvZmlsZS5waHA/aWQ9NjE1Njc4OTY2OTI5OTQKIEFueSBjaGFuZ2VzIHdpbGwgYXV0b21hdGljYWxseSBkaXNhYmxlIHRoaXMgc2NyaXB0IQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K"
-          $decodedNotice = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($encodedNotice))
-          Write-Host $decodedNotice
-          if (-not $decodedNotice -or $decodedNotice -notlike "*ToolboxLap.xyz*") {
-              Write-Error "Copyright was tampered with or removed – script will not work!"
-              exit 1
+          $encodedNotice = "Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQogQ29weXJpZ2h0IMKpIDIwMjUgVG9vbGJveExhcC54eXogfCBodHRwczovL3d3dy50b29sYm94bGFwLnh5ei8KIEFsbCByaWdodHMgcmVzZXJ2ZWQuIERvIG5vdCByZW1vdmUgb3IgbW9kaWZ5IGNvcHlyaWdodCB0ZXh0LgogWW91VHViZTogaHR0cHM6Ly93d3cueW91dHViZS5jb20vY2hhbm5lbC9VQ0RUNGZzOUp3cm5RSVhQclhYOHlIZVEKIEZhY2Vib29rOiBodHRwczovL3d3dy5mYWNlYm9vay5jb20vcHJvZmlsZS5waHA/aWQ9NjE1Njc4OTY2OTI5OTQKIEFueSBjaGFuZ2VzIHdpbGwgYXV0b21hdGljYWxseSBkaXNhYmxlIHRoaXMgc2NyaXB0IQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K";
+          $decodedNotice = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("$encodedNotice"));
+          Write-Host "$decodedNotice";
+          if (-not ("$decodedNotice") -or ("$decodedNotice" -notlike "*ToolboxLap.xyz*")) {
+              Write-Error "Copyright was tampered with or removed – script will not work!";
+              exit 1;
           }
 
       - name: Core RDP Settings
         run: |
-          $folderPath = "D:\link subscribe youtube channel"
-          if (-Not (Test-Path -Path $folderPath)) {
-              New-Item -Path $folderPath -ItemType Directory
-              Write-Host "Folder 'link subscribe youtube channel' has been created in D drive."
+          $folderPath = "D:\link subscribe youtube channel";
+          if (-Not (Test-Path -Path "$folderPath")) {
+              New-Item -Path "$folderPath" -ItemType Directory;
+              Write-Host "Folder 'link subscribe youtube channel' has been created in D drive.";
           } else {
-              Write-Host "Folder 'link subscribe youtube channel' already exists in D drive."
+              Write-Host "Folder 'link subscribe youtube channel' already exists in D drive.";
           }
 
       - name: Configure Core RDP Settings
         run: |
-          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0 -Force
-          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1 -Force
-          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "SecurityLayer" -Value 1 -Force
-          netsh advfirewall firewall delete rule name="RDP-Tailscale"
-          netsh advfirewall firewall add rule name="RDP-Tailscale" dir=in action=allow protocol=TCP localport=3389
-          Restart-Service -Name TermService -Force
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0 -Force;
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1 -Force;
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "SecurityLayer" -Value 1 -Force;
+          netsh advfirewall firewall delete rule name="RDP-Tailscale";
+          netsh advfirewall firewall add rule name="RDP-Tailscale" dir=in action=allow protocol=TCP localport=3389;
+          Restart-Service -Name TermService -Force;
 
       - name: Create RDP User with Static Password
         run: |
-          $password = "MyStrong123"
-          $securePass = ConvertTo-SecureString $password -AsPlainText -Force
+          $password = "${{ secrets.RDP_PASS }}";
+          $securePass = ConvertTo-SecureString -String "$password" -AsPlainText -Force;
 
-          if (-not (Get-LocalUser -Name "HAM7Office" -ErrorAction SilentlyContinue)) {
-              New-LocalUser -Name "HAM7Office" -Password $securePass -AccountNeverExpires
+          if (-not (Get-LocalUser -Name "${{ secrets.RDP_USER }}" -ErrorAction SilentlyContinue)) {
+              New-LocalUser -Name "${{ secrets.RDP_USER }}" -Password ($securePass) -AccountNeverExpires;
           }
-          Add-LocalGroupMember -Group "Administrators" -Member "HAM7Office"
-          Add-LocalGroupMember -Group "Remote Desktop Users" -Member "HAM7Office"
-       
-          echo "RDP_CREDS=User: HAM7Office | Password: $password" >> $env:GITHUB_ENV
-          if (-not (Get-LocalUser -Name "HAM7Office")) {
-              Write-Error "User creation failed"
-              exit 1
+          Add-LocalGroupMember -Group "Administrators" -Member "${{ secrets.RDP_USER }}";
+          Add-LocalGroupMember -Group "Remote Desktop Users" -Member "${{ secrets.RDP_USER }}";
+        
+          echo "RDP_CREDS=User: ${{ secrets.RDP_USER }} | Password: $password" >> "$env:GITHUB_ENV";
+          if (-not (Get-LocalUser -Name "${{ secrets.RDP_USER }}")) {
+              Write-Error "User creation failed";
+              exit 1;
           }
 
       - name: Install Tailscale
         run: |
-          $tsUrl = "https://pkgs.tailscale.com/stable/tailscale-setup-1.82.0-amd64.msi"
-          $installerPath = "$env:TEMP\tailscale.msi"
-          Invoke-WebRequest -Uri $tsUrl -OutFile $installerPath
-          Start-Process msiexec.exe -ArgumentList "/i", "`"$installerPath`"", "/quiet", "/norestart" -Wait
-          Remove-Item $installerPath -Force
+          $tsUrl = "https://pkgs.tailscale.com/stable/tailscale-setup-1.82.0-amd64.msi";
+          $installerPath = "$env:TEMP\tailscale.msi";
+          Invoke-WebRequest -Uri "$tsUrl" -OutFile "$installerPath";
+          Start-Process msiexec.exe -ArgumentList "/i", "`"$installerPath`"", "/quiet", "/norestart" -Wait;
+          Remove-Item -Path "$installerPath" -Force;
 
       - name: Establish Tailscale Connection
         run: |
-          & "$env:ProgramFiles\Tailscale\tailscale.exe" up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --hostname=HAM7Office
-          $tsIP = $null
-          $retries = 0
-          while (-not $tsIP -and $retries -lt 10) {
-              $tsIP = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -4
-              Start-Sleep -Seconds 5
-              $retries++
+          & "$env:ProgramFiles\Tailscale\tailscale.exe" up --authkey="${{ secrets.TAILSCALE_AUTH_KEY }}" --hostname="${{ secrets.RDP_USER }}";
+          $tsIP =$null;
+          $retries = 0;
+          while ((-not ($tsIP)) -and ($retries -lt 10)) {
+              $tsIP = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -4;
+              Start-Sleep -Seconds 5;
+              $retries++;
           }
-          if (-not $tsIP) {
-              Write-Error "Tailscale IP not assigned. Exiting."
-              exit 1
+          if (-not ($tsIP)) {
+              Write-Error "Tailscale IP not assigned. Exiting.";
+              exit 1;
           }
-          echo "TAILSCALE_IP=$tsIP" >> $env:GITHUB_ENV
+          echo "TAILSCALE_IP=$tsIP" >> "$env:GITHUB_ENV";
 
       - name: Verify RDP Accessibility
         run: |
-          Write-Host "Tailscale IP: $env:TAILSCALE_IP"
-          $testResult = Test-NetConnection -ComputerName $env:TAILSCALE_IP -Port 3389
-          if (-not $testResult.TcpTestSucceeded) {
-              Write-Error "TCP connection to RDP port 3389 failed"
-              exit 1
+          Write-Host "Tailscale IP: $env:TAILSCALE_IP";
+          $testResult = Test-NetConnection -ComputerName "$env:TAILSCALE_IP" -Port 3389;
+          if (-not ($testResult.TcpTestSucceeded)) {
+              Write-Error "TCP connection to RDP port 3389 failed";
+              exit 1;
           }
-          Write-Host "TCP connectivity successful!"
+          Write-Host "TCP connectivity successful!";
 
       - name: Download, Extract, and Fix Permissions
         run: |
-          $DirectLink = "https://github.com/Wosol33/Tailscale/releases/download/LWR152/librewolf_RDP.rar"
-          $DesktopPath = "C:\Users\Public\Desktop"
-          $Destination = "$DesktopPath\librewolf_RDP.rar"
+          $DirectLink = "https://github.com/Wosol33/Tailscale/releases/download/LWR152/librewolf_RDP.rar";
+          $DesktopPath = "C:\Users\Public\Desktop";
+          $Destination = "$DesktopPath\librewolf_RDP.rar";
           
-          Write-Host "Downloading librewolf_RDP.rar..."
-          Invoke-WebRequest -Uri $DirectLink -OutFile $Destination
-          Write-Host "تم التحميل! جاري فك الضغط..."
+          Write-Host "Downloading librewolf_RDP.rar...";
+          Invoke-WebRequest -Uri "$DirectLink" -OutFile "$Destination";
+          Write-Host "تم التحميل! جاري فك الضغط...";
           
-          tar -xf $Destination -C $DesktopPath
-          Remove-Item $Destination -Force
+          tar -xf "$Destination" -C "$DesktopPath";
+          Remove-Item -Path "$Destination" -Force;
           
-          Write-Host "جاري تعديل الصلاحيات وإلغاء القراءة فقط..."
+          Write-Host "جاري تعديل الصلاحيات وإلغاء القراءة فقط...";
           
           Get-ChildItem -Path "$DesktopPath" -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
-              if ($_.IsReadOnly) { $_.IsReadOnly = $false }
-          }
+              if ($_.IsReadOnly) { $_.IsReadOnly =$false }
+          };
           
-          icacls "$DesktopPath\*" /grant "HAM7Office:(OI)(CI)F" /T /C /Q
+          icacls "$DesktopPath\*" /grant "${{ secrets.RDP_USER }}:(OI)(CI)F" /T /C /Q;
           
-          Write-Host "تم فك الضغط وتجهيز الصلاحيات بنجاح على سطح المكتب!"
+          Write-Host "تم فك الضغط وتجهيز الصلاحيات بنجاح على سطح المكتب!";
 
       - name: Maintain Connection
         run: |
-          $ownershipNotice = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQogQ29weXJpZ2h0IMKpIDIwMjUgVG9vbGJveExhcC54eXogfCBodHRwczovL3d3dy50b29sYm94bGFwLnh5ei8KIEFsbCByaWdodHMgcmVzZXJ2ZWQuIERvIG5vdCByZW1vdmUgb3IgbW9kaWZ5IGNvcHlyaWdodCB0ZXh0LgogWW91VHViZTogaHR0cHM6Ly93d3cueW91dHViZS5jb20vY2hhbm5lbC9VQ0RUNGZzOUp3cm5RSVhQclhYOHlIZVEKIEZhY2Vib29rOiBodHRwczovL3d3dy5mYWNlYm9vay5jb20vcHJvZmlsZS5waHA/aWQ9NjE1Njc4OTY2OTI5OTQKIEFueSBjaGFuZ2VzIHdpbGwgYXV0b21hdGljYWxseSBkaXNhYmxlIHRoaXMgc2NyaXB0IQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K"))
-          Write-Host $ownershipNotice
-          Write-Host "`n=== RDP ACCESS ==="
-          Write-Host "Address: $env:TAILSCALE_IP"
-          Write-Host "Username: HAM7Office"
-          Write-Host "Password: MyStrong123"
-          Write-Host "Powered by https://www.toolboxlap.xyz/"
-          Write-Host "========= All rights reserved =========`n"
-         
+          $ownershipNotice = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQogQ29weXJpZ2h0IMKpIDIwMjUgVG9vbGJveExhcC54eXogfCBodHRwczovL3d3dy50b29sYm94bGFwLnh5ei8KIEFsbCByaWdodHMgcmVzZXJ2ZWQuIERvIG5vdCByZW1vdmUgb3IgbW9kaWZ5IGNvcHlyaWdodCB0ZXh0LgogWW91VHViZTogaHR0cHM6Ly93d3cueW91dHViZS5jb20vY2hhbm5lbC9VQ0RUNGZzOUp3cm5RSVhQclhYOHlIZVEKIEZhY2Vib29rOiBodHRwczovL3d3dy5mYWNlYm9vay5jb20vcHJvZmlsZS5waHA/aWQ9NjE1Njc4OTY2OTI5OTQKIEFueSBjaGFuZ2VzIHdpbGwgYXV0b21hdGljYWxseSBkaXNhYmxlIHRoaXMgc2NyaXB0IQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K"));
+          Write-Host "$ownershipNotice";
+          Write-Host "`n=== RDP ACCESS ===";
+          Write-Host "Address: $env:TAILSCALE_IP";
+          Write-Host "Username: ${{ secrets.RDP_USER }}";
+          Write-Host "Password: ${{ secrets.RDP_PASS }}";
+          Write-Host "Powered by https://www.toolboxlap.xyz/";
+          Write-Host "========= All rights reserved =========`n";
+          
           while ($true) {
-              Write-Host "[$(Get-Date)] RDP Active - Use Ctrl+C in workflow to terminate"
-              Start-Sleep -Seconds 300
+              Write-Host "[$(Get-Date)] RDP Active - Use Ctrl+C in workflow to terminate";
+              Start-Sleep -Seconds 300;
           }
